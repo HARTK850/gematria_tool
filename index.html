@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מחשבון גימטריה ומחמאות - גרסת פרימיום</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #7c3aed;
+            --primary-light: #8b5cf6;
+            --primary-dark: #5b21b6;
+            --secondary: #f59e0b;
+            --secondary-light: #fbbf24;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --success: #10b981;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --gold: #facc15;
+            --silver: #e2e8f0;
+        }
+        
+        body {
+            font-family: 'Heebo', 'Poppins', sans-serif;
+            background: radial-gradient(circle at 10% 20%, rgba(248, 250, 252, 0.9) 0%, rgba(226, 232, 240, 0.9) 90%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .luxury-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08), 0 10px 30px rgba(109, 40, 217, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .luxury-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+        
+        .btn-luxury {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            box-shadow: 0 8px 15px rgba(109, 40, 217, 0.3);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border: none;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .btn-luxury:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 20px rgba(109, 40, 217, 0.4);
+        }
+        
+        .btn-luxury::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+        
+        .btn-luxury:hover::after {
+            opacity: 1;
+        }
+        
+        .btn-gold {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--gold) 100%);
+            color: var(--dark);
+            box-shadow: 0 8px 15px rgba(245, 158, 11, 0.3);
+        }
+        
+        .btn-gold:hover {
+            box-shadow: 0 12px 20px rgba(245, 158, 11, 0.4);
+        }
+        
+        .btn-gold::after {
+            background: linear-gradient(135deg, var(--secondary-light) 0%, var(--secondary) 100%);
+        }
+        
+        .compliment-luxury {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(226, 232, 240, 0.5);
+        }
+        
+        .compliment-luxury:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+        
+        .compliment-luxury::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+        }
+        
+        .first-letter-luxury {
+            color: var(--primary);
+            font-size: 1.4em;
+            font-weight: 900;
+            text-shadow: 0 3px 6px rgba(109, 40, 217, 0.15);
+            position: relative;
+            display: inline-block;
+        }
+        
+        .first-letter-luxury::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), transparent);
+            border-radius: 3px;
+        }
+        
+        .loading-luxury {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .spinner-luxury {
+            width: 70px;
+            height: 70px;
+            position: relative;
+            margin: 0 auto 20px;
+        }
+        
+        .spinner-luxury::before,
+        .spinner-luxury::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 5px solid transparent;
+            mix-blend-mode: overlay;
+        }
+        
+        .spinner-luxury::before {
+            border-top-color: var(--primary);
+            border-right-color: var(--primary);
+            animation: spin-luxury 1.5s linear infinite;
+        }
+        
+        .spinner-luxury::after {
+            border-bottom-color: var(--secondary);
+            border-left-color: var(--secondary);
+            animation: spin-luxury 2s linear infinite reverse;
+        }
+        
+        @keyframes spin-luxury {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .fade-in-luxury {
+            animation: fadeInLuxury 0.6s ease-out forwards;
+        }
+        
+        @keyframes fadeInLuxury {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .floating-luxury {
+            animation: floatingLuxury 4s ease-in-out infinite;
+        }
+        
+        @keyframes floatingLuxury {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(2deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        
+        .text-gradient-luxury {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+        }
+        
+        .text-gradient-luxury::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 3px;
+        }
+        
+        .glow-luxury {
+            text-shadow: 0 0 15px rgba(109, 40, 217, 0.4);
+        }
+        
+        .toast-luxury {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, var(--dark) 0%, #334155 100%);
+            color: white;
+            padding: 16px 28px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            animation: slideInLuxury 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), fadeOutLuxury 0.5s 3s forwards;
+            border-left: 4px solid var(--primary);
+        }
+        
+        @keyframes slideInLuxury {
+            from { transform: translateX(100%) scale(0.9); opacity: 0; }
+            to { transform: translateX(0) scale(1); opacity: 1; }
+        }
+        
+        @keyframes fadeOutLuxury {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .letter-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(109, 40, 217, 0.2);
+            margin-left: 8px;
+        }
+        
+        .gematria-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            height: 30px;
+            padding: 0 10px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-light) 100%);
+            color: var(--dark);
+            font-weight: bold;
+            font-size: 0.9em;
+            box-shadow: 0 2px 5px rgba(245, 158, 11, 0.2);
+        }
+        
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .floating-shape {
+            position: absolute;
+            opacity: 0.1;
+            animation: float-shape 15s linear infinite;
+        }
+        
+        @keyframes float-shape {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(50px, 50px) rotate(90deg); }
+            50% { transform: translate(100px, 0) rotate(180deg); }
+            75% { transform: translate(50px, -50px) rotate(270deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+        
+        .shine-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .shine-effect::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 40%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.15);
+            transform: rotate(30deg);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { left: -60%; }
+            20% { left: 120%; }
+            100% { left: 120%; }
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: var(--primary);
+            opacity: 0;
+            z-index: 9999;
+            animation: confetti-fall 3s ease-out forwards;
+        }
+        
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+        
+        @media print {
+            .no-print-luxury {
+                display: none !important;
+            }
+            
+            body {
+                background: white !important;
+            }
+            
+            .luxury-card {
+                background: white !important;
+                box-shadow: none !important;
+                border: 1px solid #e2e8f0 !important;
+            }
+            
+            .compliment-luxury {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Floating Shapes Background -->
+    <div class="floating-shapes">
+        <div class="floating-shape" style="top: 10%; left: 5%; width: 100px; height: 100px; background: conic-gradient(from 45deg, var(--primary), var(--secondary)); border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; animation-delay: 0s; animation-duration: 20s;"></div>
+        <div class="floating-shape" style="top: 70%; left: 80%; width: 150px; height: 150px; background: radial-gradient(circle, var(--secondary), transparent 70%); animation-delay: 2s; animation-duration: 25s;"></div>
+        <div class="floating-shape" style="top: 30%; left: 70%; width: 80px; height: 80px; background: linear-gradient(45deg, var(--primary), var(--primary-light)); border-radius: 50%; animation-delay: 5s; animation-duration: 18s;"></div>
+        <div class="floating-shape" style="top: 60%; left: 15%; width: 120px; height: 120px; background: conic-gradient(from 90deg, var(--secondary), var(--gold)); border-radius: 50% 50% 0 0; animation-delay: 3s; animation-duration: 22s;"></div>
+    </div>
+
+    <!-- Floating Particles -->
+    <div id="particles-js" class="fixed inset-0 overflow-hidden pointer-events-none z-0"></div>
+
+    <div class="container mx-auto px-4 py-12 relative z-10">
+        <!-- Header with Shine Effect -->
+        <div class="text-center mb-16 fade-in-luxury" style="animation-delay: 0.1s;">
+            <div class="shine-effect inline-block px-8 py-4 rounded-full mb-6">
+                <span class="text-sm font-bold uppercase tracking-widest text-white bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 rounded-full">גרסת פרימיום</span>
+            </div>
+            <h1 class="text-5xl md:text-6xl font-black text-gradient-luxury mb-4 glow-luxury leading-tight">מחשבון גימטריה<br>ומחמאות יוקרתי</h1>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">גלה את הסודות הנסתרים בשמך עם הכלי המתקדם ביותר לגימטריה וקונסטרוקציה</p>
+            
+            <div class="mt-8 flex justify-center space-x-4">
+                <div class="flex items-center bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-gray-200">
+                    <i class="fas fa-star text-yellow-400 mr-2"></i>
+                    <span class="font-medium text-gray-700">דירוג 5 כוכבים</span>
+                </div>
+                <div class="flex items-center bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm border border-gray-200">
+                    <i class="fas fa-bolt text-purple-500 mr-2"></i>
+                    <span class="font-medium text-gray-700">מתקדם ומהיר</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Input Section -->
+            <div class="luxury-card p-8 rounded-2xl fade-in-luxury" style="animation-delay: 0.2s;">
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+                        <i class="fas fa-user-edit text-purple-500 mr-3 text-2xl"></i>
+                        הזינו פרטים
+                    </h2>
+                    <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                        <i class="fas fa-pen text-purple-500"></i>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label for="inputName" class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                        <i class="fas fa-signature text-purple-500 mr-2"></i>
+                        שם מלא:
+                    </label>
+                    <div class="relative">
+                        <input type="text" id="inputName" class="w-full px-5 py-4 border-0 bg-gray-50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white text-lg transition-all duration-300" placeholder="הקלד את שמך">
+                        <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-8">
+                    <label for="gender" class="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                        <i class="fas fa-venus-mars text-purple-500 mr-2"></i>
+                        מין:
+                    </label>
+                    <div class="relative">
+                        <select id="gender" class="w-full px-5 py-4 border-0 bg-gray-50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white text-lg appearance-none transition-all duration-300">
+                            <option value="male">זכר</option>
+                            <option value="female">נקבה</option>
+                        </select>
+                        <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col space-y-4">
+                    <button onclick="calculateGematria()" class="btn-luxury px-6 py-4 rounded-xl text-lg font-bold flex items-center justify-center">
+                        <i class="fas fa-calculator mr-3"></i> חשב גימטריה
+                    </button>
+                    
+                    <button onclick="calculateConstruction()" class="btn-gold px-6 py-4 rounded-xl text-lg font-bold flex items-center justify-center">
+                        <i class="fas fa-font mr-3"></i> חשב קונסטרוקציה
+                    </button>
+                </div>
+                
+                <div class="mt-8 pt-6 border-t border-gray-100">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                            <i class="fas fa-lightbulb text-purple-500"></i>
+                        </div>
+                        <p class="text-sm text-gray-500">טיפ: הזינו שם מלא לקבלת תוצאות מדויקות יותר</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Results Section -->
+            <div class="lg:col-span-2 fade-in-luxury" style="animation-delay: 0.4s;">
+                <div class="luxury-card p-8 rounded-2xl h-full min-h-[600px] flex flex-col">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+                            <i class="fas fa-chart-bar text-purple-500 mr-3 text-2xl"></i>
+                            תוצאות
+                        </h2>
+                        <div id="exportButtons" class="hidden no-print-luxury flex space-x-2">
+                            <button onclick="printResults()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl text-sm font-medium flex items-center transition-all duration-300">
+                                <i class="fas fa-print mr-2 text-gray-600"></i> הדפס
+                            </button>
+                            <button onclick="saveAsText()" class="px-4 py-2 bg-green-100 hover:bg-green-200 rounded-xl text-sm font-medium flex items-center transition-all duration-300">
+                                <i class="fas fa-file-alt mr-2 text-green-600"></i> טקסט
+                            </button>
+                            <button onclick="saveAsPDF()" class="px-4 py-2 bg-red-100 hover:bg-red-200 rounded-xl text-sm font-medium flex items-center transition-all duration-300">
+                                <i class="fas fa-file-pdf mr-2 text-red-600"></i> PDF
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="loading" class="hidden py-12 flex-1 flex flex-col justify-center">
+                        <div class="spinner-luxury"></div>
+                        <p class="text-center mt-4 text-gray-600 font-medium text-lg">מכין מחמאות מותאמות אישית בשבילך...</p>
+                        <p class="text-center text-gray-400 mt-2">זה עשוי לקחת כמה שניות</p>
+                    </div>
+                    
+                    <div id="finished" class="hidden flex-1 flex flex-col">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 id="detailsTitle" class="text-xl font-bold text-gray-700 flex items-center">
+                                <i class="fas fa-info-circle text-purple-500 mr-2 text-xl"></i>
+                                פירוט גימטריה:
+                            </h3>
+                            <button id="shareButton" onclick="copyShareLink()" class="px-4 py-2 bg-blue-100 hover:bg-blue-200 rounded-xl text-sm font-medium hidden no-print-luxury flex items-center transition-all duration-300">
+                                <i class="fas fa-share-alt mr-2 text-blue-600"></i> שתף תוצאות
+                            </button>
+                        </div>
+                        
+                        <div id="gematriaResults" class="mb-8 p-6 bg-gray-50 rounded-xl border border-gray-200"></div>
+                        
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-bold text-gray-700 flex items-center">
+                                <i class="fas fa-heart text-purple-500 mr-2 text-xl"></i>
+                                מחמאות מתאימות:
+                            </h3>
+                            <div id="complimentCount" class="text-sm font-medium text-gray-500 hidden"></div>
+                        </div>
+                        <div id="complimentsResults" class="space-y-4 flex-1 overflow-y-auto pr-2"></div>
+                    </div>
+                    
+                    <!-- Empty State -->
+                    <div id="emptyState" class="text-center py-12 flex-1 flex flex-col justify-center items-center">
+                        <div class="mx-auto w-32 h-32 bg-gradient-to-br from-purple-100 to-purple-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                            <i class="fas fa-magic text-5xl text-purple-500"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-700 mb-3">אין תוצאות להצגה</h3>
+                        <p class="text-gray-500 max-w-md mx-auto mb-6">הזינו שם ולחצו על אחת מהאפשרויות למעלה כדי לקבל מחמאות מותאמות אישית</p>
+                        <button onclick="showDemoResults()" class="px-6 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium flex items-center transition-all duration-300">
+                            <i class="fas fa-eye mr-2"></i> הצג דוגמה
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <div class="fixed bottom-6 left-6 z-50 no-print-luxury">
+        <button onclick="scrollToTop()" id="scrollTopBtn" class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-full shadow-xl flex items-center justify-center transition-all duration-300 opacity-0 invisible">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+    </div>
+
+    <script>
+        const { jsPDF } = window.jspdf;
+        
+        // הגדרת חלקיקים רקע
+        function createParticles() {
+            const container = document.getElementById('particles-js');
+            const particleCount = window.innerWidth < 768 ? 30 : 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // מיקום אקראי
+                const posX = Math.random() * window.innerWidth;
+                const posY = Math.random() * window.innerHeight;
+                
+                // גודל אקראי
+                const size = Math.random() * 5 + 2;
+                
+                // צבע אקראי
+                const colors = ['#8b5cf6', '#7c3aed', '#f59e0b', '#fbbf24'];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                // אנימציה
+                const duration = Math.random() * 20 + 10;
+                const delay = Math.random() * 5;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.backgroundColor = color;
+                particle.style.left = `${posX}px`;
+                particle.style.top = `${posY}px`;
+                particle.style.animation = `float-shape ${duration}s linear ${delay}s infinite`;
+                
+                container.appendChild(particle);
+            }
+        }
+        
+        // הגדרת גימטריה
+        const gematriaMap = {
+            'א': 1, 'ב': 2, 'ג': 3, 'ד': 4, 'ה': 5, 'ו': 6, 'ז': 7, 'ח': 8, 'ט': 9,
+            'י': 10, 'כ': 20, 'ך': 20, 'ל': 30, 'מ': 40, 'ם': 40, 'נ': 50, 'ן': 50,
+            'ס': 60, 'ע': 70, 'פ': 80, 'ף': 80, 'צ': 90, 'ץ': 90, 'ק': 100, 'ר': 200,
+            'ש': 300, 'ת': 400
+        };
+
+        // מטמון למחמאות
+        const complimentsCache = { male: null, female: null };
+
+        // יצירת קונפטי
+        function createConfetti() {
+            const colors = ['#7c3aed', '#8b5cf6', '#f59e0b', '#fbbf24', '#10b981', '#3b82f6'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                
+                // מיקום אקראי בחלק העליון של המסך
+                const posX = Math.random() * window.innerWidth;
+                
+                // צבע אקראי
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                // גודל אקראי
+                const size = Math.random() * 10 + 5;
+                
+                // משך אנימציה
+                const duration = Math.random() * 3 + 2;
+                
+                // עיכוב אנימציה
+                const delay = Math.random() * 0.5;
+                
+                confetti.style.left = `${posX}px`;
+                confetti.style.width = `${size}px`;
+                confetti.style.height = `${size}px`;
+                confetti.style.backgroundColor = color;
+                confetti.style.animationDuration = `${duration}s`;
+                confetti.style.animationDelay = `${delay}s`;
+                
+                // צורה אקראית
+                if (Math.random() > 0.5) {
+                    confetti.style.borderRadius = '50%';
+                } else {
+                    confetti.style.transform = 'rotate(45deg)';
+                }
+                
+                document.body.appendChild(confetti);
+                
+                // הסרה לאחר האנימציה
+                setTimeout(() => {
+                    confetti.remove();
+                }, duration * 1000);
+            }
+        }
+
+        function calculateWordGematria(word) {
+            return word.split('').reduce((sum, char) => sum + (gematriaMap[char] || 0), 0);
+        }
+
+        function calculateGematria() {
+            document.getElementById('emptyState').style.display = 'none';
+            updateDetailsTitle("gematria");
+            const name = document.getElementById('inputName').value.trim();
+            const gender = document.getElementById('gender').value;
+            if (!name) return showToast("⚠️ נא להזין שם תחילה", "warning");
+            
+            const gematriaResults = document.getElementById('gematriaResults');
+            const complimentsResults = document.getElementById('complimentsResults');
+            const loading = document.getElementById('loading');
+            const finished = document.getElementById('finished');
+            const shareButton = document.getElementById('shareButton');
+            const exportButtons = document.getElementById('exportButtons');
+            
+            gematriaResults.innerHTML = "";
+            complimentsResults.innerHTML = "";
+            loading.style.display = "flex";
+            finished.style.display = "none";
+            shareButton.style.display = "none";
+            exportButtons.classList.add("hidden");
+            
+            let totalGematria = calculateWordGematria(name);
+            
+            // יצירת טבלת גימטריה משודרגת
+            const table = document.createElement('div');
+            table.classList.add('grid', 'grid-cols-3', 'md:grid-cols-5', 'gap-4', 'mb-6');
+            
+            name.split('').forEach(char => {
+                if (gematriaMap[char]) {
+                    const charDiv = document.createElement('div');
+                    charDiv.classList.add('bg-white', 'p-3', 'rounded-xl', 'shadow-sm', 'text-center', 'transform', 'hover:scale-105', 'transition-transform', 'duration-300');
+                    
+                    const charSpan = document.createElement('div');
+                    charSpan.textContent = char;
+                    charSpan.classList.add('text-3xl', 'font-bold', 'text-purple-600', 'mb-2');
+                    
+                    const valueSpan = document.createElement('div');
+                    valueSpan.textContent = gematriaMap[char];
+                    valueSpan.classList.add('text-lg', 'text-gray-600', 'font-medium');
+                    
+                    charDiv.appendChild(charSpan);
+                    charDiv.appendChild(valueSpan);
+                    table.appendChild(charDiv);
+                }
+            });
+            
+            gematriaResults.appendChild(table);
+            
+            // הוספת תוצאה סופית עם אנימציה
+            const totalDiv = document.createElement('div');
+            totalDiv.classList.add('bg-gradient-to-r', 'from-purple-50', 'to-purple-100', 'border', 'border-purple-200', 'p-5', 'rounded-xl', 'text-center', 'shadow-inner');
+            
+            const totalP = document.createElement('p');
+            totalP.classList.add('text-xl', 'font-medium', 'text-gray-700', 'mb-2');
+            totalP.innerHTML = `סך הכל גימטריה:`;
+            
+            const totalValue = document.createElement('div');
+            totalValue.classList.add('text-4xl', 'font-bold', 'text-purple-600');
+            totalValue.textContent = totalGematria;
+            
+            totalDiv.appendChild(totalP);
+            totalDiv.appendChild(totalValue);
+            gematriaResults.appendChild(totalDiv);
+            
+            // טעינת מחמאות
+            const fileToLoad = gender === "male" ? "compliments_male.txt" : "compliments_female.txt";
+            
+            if (complimentsCache[gender]) {
+                setTimeout(() => {
+                    findMatchingCompliments(complimentsCache[gender], totalGematria, name);
+                }, 1000);
+            } else {
+                // הדמיה של טעינת נתונים
+                setTimeout(() => {
+                    // במקום אמיתי כאן יהיה fetch
+                    const demoCompliments = `אדם נפלא
+                    בעל לב זהב
+                    גיבור אמיתי
+                    דואג לזולת
+                    הארה לכל הסביבה
+                    ואציל בהליכותיו
+                    זך במחשבותיו
+                    חכם ונבון
+                    טוב לב
+                    יושרה ללא דופי
+                    כאב לבו לאחר
+                    לב רחב
+                    מלא חסד
+                    נדיב ברוחו
+                    סובלני ורגיש
+                    עוזר לכולם
+                    פועל בצדק
+                    צדיק בדרכיו
+                    קולו נעים
+                    רודף שלום
+                    שופע אהבה
+                    תומך בחלשים`;
+                    
+                    complimentsCache[gender] = demoCompliments;
+                    findMatchingCompliments(demoCompliments, totalGematria, name);
+                }, 1500);
+            }
+            
+            // הצגת כפתור השיתוף
+            shareButton.style.display = "flex";
+            exportButtons.classList.remove("hidden");
+            
+            // הוספת הכפתור "פירוט גימטריה לכל המחמאות"
+            addGlobalDetailsButton();
+        }
+        
+        function showDemoResults() {
+            document.getElementById('inputName').value = "דוד";
+            document.getElementById('gender').value = "male";
+            calculateGematria();
+        }
+        
+        function copyShareLink() {
+            const name = document.getElementById('inputName').value.trim();
+            const gender = document.getElementById('gender').value;
+            const url = `${window.location.origin}${window.location.pathname}?Name=${encodeURIComponent(name)}&Gender=${gender}`;
+            
+            navigator.clipboard.writeText(url).then(() => {
+                showToast("📋 הקישור הועתק ללוח!", "success");
+                createConfetti();
+            }).catch(err => {
+                console.error("שגיאה בהעתקת הקישור", err);
+                showToast("❌ שגיאה בהעתקת הקישור", "error");
+            });
+        }
+
+        function showToast(message, type = "info") {
+            const toast = document.createElement('div');
+            toast.className = 'toast-luxury';
+            
+            let icon = '';
+            let bgColor = '';
+            
+            switch(type) {
+                case "success":
+                    icon = '<i class="fas fa-check-circle mr-3"></i>';
+                    bgColor = 'bg-gradient-to-r from-green-500 to-green-400';
+                    break;
+                case "error":
+                    icon = '<i class="fas fa-exclamation-circle mr-3"></i>';
+                    bgColor = 'bg-gradient-to-r from-red-500 to-red-400';
+                    break;
+                case "warning":
+                    icon = '<i class="fas fa-exclamation-triangle mr-3"></i>';
+                    bgColor = 'bg-gradient-to-r from-amber-500 to-amber-400';
+                    break;
+                default:
+                    icon = '<i class="fas fa-info-circle mr-3"></i>';
+                    bgColor = 'bg-gradient-to-r from-blue-500 to-blue-400';
+            }
+            
+            toast.innerHTML = `${icon} ${message}`;
+            toast.style.background = bgColor;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        function loadFromUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            const name = params.get("Name");
+            const gender = params.get("Gender");
+            
+            if (name && gender) {
+                document.getElementById('inputName').value = name;
+                document.getElementById('gender').value = gender;
+                document.getElementById('emptyState').style.display = 'none';
+                calculateGematria();
+            }
+        }
+
+        window.onload = function() {
+            loadFromUrlParams();
+            createParticles();
+            
+            // טעינת אנימציות GSAP
+            if (typeof gsap !== 'undefined') {
+                gsap.from(".fade-in-luxury", {
+                    duration: 0.8,
+                    opacity: 0,
+                    y: 20,
+                    stagger: 0.2,
+                    ease: "power2.out"
+                });
+            }
+            
+            // הוספת אירוע גלילה לכפתור הגלילה למעלה
+            window.addEventListener('scroll', toggleScrollButton);
+        };
+
+        function toggleScrollButton() {
+            const scrollBtn = document.getElementById('scrollTopBtn');
+            if (window.pageYOffset > 300) {
+                scrollBtn.classList.remove('opacity-0', 'invisible');
+                scrollBtn.classList.add('opacity-100', 'visible');
+            } else {
+                scrollBtn.classList.add('opacity-0', 'invisible');
+                scrollBtn.classList.remove('opacity-100', 'visible');
+            }
+        }
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        function updateDetailsTitle(mode) {
+            const title = document.getElementById("detailsTitle");
+            const icon = title.querySelector('i');
+            
+            if (mode === "gematria") {
+                title.innerHTML = `<i class="fas fa-info-circle text-purple-500 mr-2 text-xl"></i> פירוט גימטריה:`;
+            } else {
+                title.innerHTML = `<i class="fas fa-font text-amber-500 mr-2 text-xl"></i> פירוט קונסטרוקציה:`;
+            }
+        }
+
+        function calculateConstruction() {
+            document.getElementById('emptyState').style.display = 'none';
+            const name = document.getElementById('inputName').value.trim();
+            const gender = document.getElementById('gender').value;
+            
+            if (!name) return showToast("⚠️ נא להזין שם תחילה", "warning");
+            
+            updateDetailsTitle("construction");
+            
+            const gematriaResults = document.getElementById('gematriaResults');
+            const complimentsResults = document.getElementById('complimentsResults');
+            const loading = document.getElementById('loading');
+            const finished = document.getElementById('finished');
+            const shareButton = document.getElementById('shareButton');
+            const exportButtons = document.getElementById('exportButtons');
+            
+            gematriaResults.innerHTML = "";
+            complimentsResults.innerHTML = "";
+            loading.style.display = "flex";
+            finished.style.display = "none";
+            shareButton.style.display = "none";
+            exportButtons.classList.add("hidden");
+            
+            // יצירת טבלת אותיות משודרגת
+            const lettersContainer = document.createElement('div');
+            lettersContainer.classList.add('flex', 'flex-wrap', 'gap-4', 'mb-8', 'justify-center');
+            
+            name.split('').forEach((char, index) => {
+                const letterContainer = document.createElement('div');
+                letterContainer.classList.add('flex', 'flex-col', 'items-center');
+                
+                const letterDiv = document.createElement('div');
+                letterDiv.classList.add('w-16', 'h-16', 'bg-gradient-to-br', 'from-purple-100', 'to-white', 'border', 'border-purple-200', 'rounded-xl', 'flex', 'items-center', 'justify-center', 'shadow-sm', 'transform', 'hover:scale-110', 'transition-transform', 'duration-300');
+                
+                const charSpan = document.createElement('span');
+                charSpan.textContent = char;
+                charSpan.classList.add('text-3xl', 'font-bold', 'text-purple-600');
+                
+                letterDiv.appendChild(charSpan);
+                letterContainer.appendChild(letterDiv);
+                
+                const indexSpan = document.createElement('span');
+                indexSpan.textContent = `#${index + 1}`;
+                indexSpan.classList.add('text-xs', 'font-medium', 'text-gray-500', 'mt-2');
+                
+                letterContainer.appendChild(indexSpan);
+                lettersContainer.appendChild(letterContainer);
+            });
+            
+            gematriaResults.appendChild(lettersContainer);
+            
+            // הוספת מידע על השם
+            const infoDiv = document.createElement('div');
+            infoDiv.classList.add('space-y-4', 'text-center', 'bg-gray-50', 'p-5', 'rounded-xl', 'border', 'border-gray-200');
+            
+            const nameP = document.createElement('p');
+            nameP.classList.add('text-xl', 'font-medium', 'text-gray-700');
+            nameP.innerHTML = `<span class="font-bold text-purple-600">${name}</span> :השם שהוכנס`;
+            
+            const countP = document.createElement('p');
+            countP.classList.add('text-lg', 'font-medium', 'text-gray-700');
+            countP.innerHTML = `<span class="font-bold text-purple-600">${name.length}</span> :מספר אותיות`;
+            
+            infoDiv.appendChild(nameP);
+            infoDiv.appendChild(countP);
+            gematriaResults.appendChild(infoDiv);
+            
+            // טעינת מחמאות
+            const fileToLoad = gender === "male" ? "compliments_male.txt" : "compliments_female.txt";
+            
+            if (complimentsCache[gender]) {
+                setTimeout(() => {
+                    findMatchingComplimentsByLetters(complimentsCache[gender], name);
+                }, 1000);
+            } else {
+                // הדמיה של טעינת נתונים
+                setTimeout(() => {
+                    const demoCompliments = `אדם נפלא
+                    בעל לב זהב
+                    גיבור אמיתי
+                    דואג לזולת
+                    הארה לכל הסביבה
+                    ואציל בהליכותיו
+                    זך במחשבותיו
+                    חכם ונבון
+                    טוב לב
+                    יושרה ללא דופי
+                    כאב לבו לאחר
+                    לב רחב
+                    מלא חסד
+                    נדיב ברוחו
+                    סובלני ורגיש
+                    עוזר לכולם
+                    פועל בצדק
+                    צדיק בדרכיו
+                    קולו נעים
+                    רודף שלום
+                    שופע אהבה
+                    תומך בחלשים`;
+                    
+                    complimentsCache[gender] = demoCompliments;
+                    findMatchingComplimentsByLetters(demoCompliments, name);
+                }, 1500);
+            }
+            
+            // הצגת כפתור השיתוף
+            shareButton.style.display = "flex";
+            exportButtons.classList.remove("hidden");
+        }
+
+        function findMatchingComplimentsByLetters(text, name) {
+            const complimentsResults = document.getElementById('complimentsResults');
+            const loading = document.getElementById('loading');
+            const finished = document.getElementById('finished');
+            const countElement = document.getElementById('complimentCount');
+            
+            let compliments = text.split("\n").map(line => line.trim()).filter(Boolean);
+            let letters = new Set(name.split(''));
+            let foundLetters = new Set();
+            let notFoundLetters = [];
+            
+            let groupedCompliments = {};
+            let totalCompliments = 0;
+            
+            letters.forEach(letter => {
+                groupedCompliments[letter] = compliments.filter(compliment => compliment.startsWith(letter));
+                if (groupedCompliments[letter].length > 0) {
+                    foundLetters.add(letter);
+                    totalCompliments += groupedCompliments[letter].length;
+                } else {
+                    notFoundLetters.push(letter);
+                }
+            });
+            
+            // הצגת מספר המחמאות
+            countElement.textContent = `${totalCompliments} מחמאות נמצאו`;
+            countElement.classList.remove("hidden");
+            
+            // הוספת אנימציה למחמאות
+            name.split('').forEach((letter, letterIndex) => {
+                let counter = 0;
+                
+                if (groupedCompliments[letter] && groupedCompliments[letter].length > 0) {
+                    groupedCompliments[letter].forEach((compliment, compIndex) => {
+                        setTimeout(() => {
+                            addComplimentResult(compliment, name, counter, letter);
+                            counter++;
+                            
+                            // אנימציה אחרונה - יצירת קונפטי
+                            if (letterIndex === name.length - 1 && compIndex === groupedCompliments[letter].length - 1) {
+                                setTimeout(() => {
+                                    createConfetti();
+                                }, 300);
+                            }
+                        }, (letterIndex * 200) + (compIndex * 50));
+                    });
+                }
+            });
+            
+            if (notFoundLetters.length > 0) {
+                const notFoundDiv = document.createElement('div');
+                notFoundDiv.classList.add('bg-amber-50', 'border', 'border-amber-100', 'p-4', 'rounded-lg', 'mb-6', 'fade-in-luxury');
+                
+                const notFoundP = document.createElement('p');
+                notFoundP.classList.add('font-medium', 'text-amber-700', 'flex', 'items-center');
+                notFoundP.innerHTML = `<i class="fas fa-info-circle mr-2"></i> לא נמצאו מחמאות שמתחילות באותיות: <span class="font-bold mx-1">${notFoundLetters.join(", ")}</span>`;
+                
+                notFoundDiv.appendChild(notFoundP);
+                complimentsResults.insertBefore(notFoundDiv, complimentsResults.firstChild);
+            }
+            
+            loading.style.display = "none";
+            finished.style.display = "block";
+        }
+
+        function addComplimentResult(complimentText, name, index = null, letter = null) {
+            const complimentsResults = document.getElementById('complimentsResults');
+            
+            const div = document.createElement("div");
+            div.classList.add("compliment-luxury", "fade-in-luxury");
+            
+            // שורה עליונה עם מספר וכפתורים
+            const topRow = document.createElement("div");
+            topRow.classList.add("flex", "justify-between", "items-center", "mb-3");
+            
+            // מספר המחמאה ואות
+            if (index !== null && letter !== null) {
+                const numberDiv = document.createElement("div");
+                numberDiv.classList.add("flex", "items-center");
+                
+                const letterBadge = document.createElement("span");
+                letterBadge.classList.add("letter-badge");
+                letterBadge.textContent = letter;
+                
+                const numberText = document.createElement("span");
+                numberText.classList.add("text-gray-600", "font-medium");
+                numberText.textContent = `${index + 1}.`;
+                
+                numberDiv.appendChild(numberText);
+                numberDiv.appendChild(letterBadge);
+                topRow.appendChild(numberDiv);
+            }
+            
+            // כפתורי פעולות
+            const buttonsDiv = document.createElement("div");
+            buttonsDiv.classList.add("flex", "space-x-2");
+            
+            // כפתור העתקה
+            const copyButton = document.createElement("button");
+            copyButton.innerHTML = "<i class='far fa-copy'></i>";
+            copyButton.classList.add("w-9", "h-9", "flex", "items-center", "justify-center", "bg-blue-100", "text-blue-600", "rounded-lg", "hover:bg-blue-200", "transition-colors", "shadow-sm");
+            copyButton.title = "העתק מחמאה";
+            copyButton.onclick = () => {
+                copyToClipboard(complimentText);
+                // אנימציה לכפתור
+                copyButton.innerHTML = "<i class='fas fa-check'></i>";
+                copyButton.classList.replace('bg-blue-100', 'bg-green-100');
+                copyButton.classList.replace('text-blue-600', 'text-green-600');
+                
+                setTimeout(() => {
+                    copyButton.innerHTML = "<i class='far fa-copy'></i>";
+                    copyButton.classList.replace('bg-green-100', 'bg-blue-100');
+                    copyButton.classList.replace('text-green-600', 'text-blue-600');
+                }, 2000);
+            };
+            
+            buttonsDiv.appendChild(copyButton);
+            
+            // כפתור פירוט גימטריה (אם במצב גימטריה)
+            let detailsButton = null;
+            if (document.getElementById("detailsTitle").textContent.includes("גימטריה")) {
+                detailsButton = document.createElement("button");
+                detailsButton.innerHTML = "<i class='fas fa-calculator'></i>";
+                detailsButton.classList.add("w-9", "h-9", "flex", "items-center", "justify-center", "bg-purple-100", "text-purple-600", "rounded-lg", "hover:bg-purple-200", "transition-colors", "shadow-sm");
+                detailsButton.title = "פירוט גימטריה";
+                
+                const detailsDiv = document.createElement("div");
+                detailsDiv.style.display = "none";
+                detailsDiv.classList.add("gematria-details", "mt-4", "p-4", "bg-gray-50", "rounded-lg", "border", "border-gray-200");
+                
+                // יצירת טבלת פירוט גימטריה
+                const detailsTable = document.createElement('div');
+                detailsTable.classList.add('grid', 'grid-cols-3', 'md:grid-cols-5', 'gap-2', 'mb-3');
+                
+                complimentText.split('').forEach(char => {
+                    if (gematriaMap[char]) {
+                        const charDiv = document.createElement('div');
+                        charDiv.classList.add('bg-white', 'p-2', 'rounded', 'shadow-xs', 'text-center', 'transform', 'hover:scale-105', 'transition-transform');
+                        
+                        const charSpan = document.createElement('div');
+                        charSpan.textContent = char;
+                        charSpan.classList.add('font-bold', 'text-purple-600', 'text-sm');
+                        
+                        const valueSpan = document.createElement('div');
+                        valueSpan.textContent = gematriaMap[char];
+                        valueSpan.classList.add('text-xs', 'text-gray-600');
+                        
+                        charDiv.appendChild(charSpan);
+                        charDiv.appendChild(valueSpan);
+                        detailsTable.appendChild(charDiv);
+                    }
+                });
+                
+                detailsDiv.appendChild(detailsTable);
+                
+                const totalDiv = document.createElement('div');
+                totalDiv.classList.add('text-center', 'font-medium', 'mt-2');
+                totalDiv.innerHTML = `סך הכל: <span class="gematria-badge">${calculateWordGematria(complimentText)}</span>`;
+                
+                detailsDiv.appendChild(totalDiv);
+                
+                detailsButton.onclick = () => {
+                    if (detailsDiv.style.display === "none") {
+                        detailsDiv.style.display = "block";
+                        detailsButton.innerHTML = "<i class='fas fa-times'></i>";
+                        detailsButton.title = "סגור פירוט";
+                        detailsButton.classList.replace('bg-purple-100', 'bg-purple-200');
+                    } else {
+                        detailsDiv.style.display = "none";
+                        detailsButton.innerHTML = "<i class='fas fa-calculator'></i>";
+                        detailsButton.title = "פירוט גימטריה";
+                        detailsButton.classList.replace('bg-purple-200', 'bg-purple-100');
+                    }
+                };
+                
+                buttonsDiv.appendChild(detailsButton);
+                div.appendChild(detailsDiv);
+            }
+            
+            topRow.appendChild(buttonsDiv);
+            div.appendChild(topRow);
+            
+            // טקסט המחמאה
+            const textDiv = document.createElement("div");
+            textDiv.textContent = complimentText;
+            textDiv.classList.add("text-xl", "font-medium", "text-gray-800", "leading-relaxed", "px-2");
+            
+            // הדגשת האות הראשונה אם היא בשם
+            highlightFirstLetter(textDiv, name);
+            
+            div.appendChild(textDiv);
+            complimentsResults.appendChild(div);
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("המחמאה הועתקה ללוח!", "success");
+            }).catch(err => {
+                console.error("שגיאה בהעתקה: ", err);
+                showToast("שגיאה בהעתקת המחמאה", "error");
+            });
+        }
+
+        function reverseWords(phrase) {
+            return phrase.split(' ').reverse().join(' ');
+        }
+
+        function findMatchingCompliments(text, targetGematria, name) {
+            const complimentsResults = document.getElementById('complimentsResults');
+            const loading = document.getElementById('loading');
+            const finished = document.getElementById('finished');
+            const countElement = document.getElementById('complimentCount');
+            
+            let compliments = text.split("\n").map(line => line.trim()).filter(Boolean);
+            let foundCompliments = new Set();
+            let sortedCompliments = [];
+            let finalCompliments = [];
+            
+            // בדיקה רגילה של מחמאה בודדת
+            for (let compliment of compliments) {
+                let sum = calculateWordGematria(compliment);
+                if (sum === targetGematria && !foundCompliments.has(compliment) && !foundCompliments.has(reverseWords(compliment))) {
+                    foundCompliments.add(compliment);
+                    sortedCompliments.push(compliment);
+                }
+            }
+            
+            // קודם נכניס את המחמאות הבודדות
+            finalCompliments.push(...sortedCompliments);
+            
+            // בדיקה עם חיבור של שתי מחמאות בעזרת "ו"
+            for (let i = 0; i < compliments.length; i++) {
+                for (let j = i + 1; j < compliments.length; j++) {
+                    let combinedCompliment = compliments[i] + " ו" + compliments[j];
+                    let combinedSum = calculateWordGematria(compliments[i]) + calculateWordGematria("ו") + calculateWordGematria(compliments[j]);
+                    
+                    if (combinedSum === targetGematria && !foundCompliments.has(combinedCompliment)) {
+                        foundCompliments.add(combinedCompliment);
+                        finalCompliments.push(combinedCompliment);
+                    }
+                }
+            }
+            
+            // מיון התוצאות כדי שהתצוגה תהיה מסודרת
+            finalCompliments.sort((a, b) => a.localeCompare(b));
+            
+            // הצגת מספר המחמאות
+            countElement.textContent = `${finalCompliments.length} מחמאות נמצאו`;
+            countElement.classList.remove("hidden");
+            
+            if (finalCompliments.length === 0) {
+                const noResultsDiv = document.createElement('div');
+                noResultsDiv.classList.add('bg-gray-100', 'p-4', 'rounded-lg', 'text-center', 'fade-in-luxury');
+                
+                const noResultsP = document.createElement('p');
+                noResultsP.classList.add('text-gray-600', 'font-medium', 'flex', 'items-center', 'justify-center');
+                noResultsP.innerHTML = `<i class="fas fa-info-circle mr-2"></i> לא נמצאו מחמאות מתאימות`;
+                
+                noResultsDiv.appendChild(noResultsP);
+                complimentsResults.appendChild(noResultsDiv);
+            } else {
+                // הוספת אנימציה למחמאות
+                finalCompliments.forEach((compliment, index) => {
+                    setTimeout(() => {
+                        addComplimentResult(compliment, name, index);
+                        
+                        // אנימציה אחרונה - יצירת קונפטי
+                        if (index === finalCompliments.length - 1) {
+                            setTimeout(() => {
+                                createConfetti();
+                            }, 300);
+                        }
+                    }, index * 100);
+                });
+            }
+            
+            loading.style.display = "none";
+            finished.style.display = "block";
+        }
+
+        function highlightFirstLetter(element, name) {
+            let firstLetter = element.textContent.charAt(0);
+            if (name.includes(firstLetter)) {
+                element.innerHTML = `<span class="first-letter-luxury">${firstLetter}</span>${element.textContent.slice(1)}`;
+            }
+        }
+
+        function addGlobalDetailsButton() {
+            const complimentsResults = document.getElementById('complimentsResults');
+            
+            // אם הכפתור כבר קיים, לא מוסיפים אותו שוב
+            if (document.getElementById("globalDetailsButton")) return;
+            
+            // יצירת כפתור ראשי לשליטה על פירוט הגימטריה
+            const globalButton = document.createElement("button");
+            globalButton.id = "globalDetailsButton";
+            globalButton.classList.add("px-5", "py-3", "bg-gradient-to-r", "from-purple-500", "to-purple-600", "text-white", "rounded-xl", "font-medium", "shadow-md", "hover:shadow-lg", "transition-all", "mb-6", "no-print-luxury", "flex", "items-center", "mx-auto", "fade-in-luxury");
+            
+            const iconSpan = document.createElement("span");
+            iconSpan.classList.add("mr-2");
+            iconSpan.innerHTML = "<i class='fas fa-calculator'></i>";
+            
+            const textSpan = document.createElement("span");
+            textSpan.textContent = "פירוט גימטריה לכל המחמאות";
+            
+            globalButton.appendChild(iconSpan);
+            globalButton.appendChild(textSpan);
+            
+            // פונקציה ללחיצה על הכפתור
+            globalButton.onclick = () => {
+                let allDetails = document.querySelectorAll(".gematria-details");
+                let allButtons = document.querySelectorAll("[title='פירוט גימטריה'], [title='סגור פירוט']");
+                
+                if (globalButton.textContent.includes("פירוט")) {
+                    allDetails.forEach(detail => detail.style.display = "block");
+                    allButtons.forEach(button => {
+                        button.innerHTML = "<i class='fas fa-times'></i>";
+                        button.title = "סגור פירוט";
+                        button.classList.replace('bg-purple-100', 'bg-purple-200');
+                    });
+                    textSpan.textContent = "סגור פירוט גימטריה";
+                } else {
+                    allDetails.forEach(detail => detail.style.display = "none");
+                    allButtons.forEach(button => {
+                        button.innerHTML = "<i class='fas fa-calculator'></i>";
+                        button.title = "פירוט גימטריה";
+                        button.classList.replace('bg-purple-200', 'bg-purple-100');
+                    });
+                    textSpan.textContent = "פירוט גימטריה לכל המחמאות";
+                }
+            };
+            
+            // הוספת הכפתור לרשימת המחמאות (מעל כל המחמאות)
+            complimentsResults.prepend(globalButton);
+        }
+        
+        // פונקציות להדפסה ושמירה
+        function printResults() {
+            window.print();
+        }
+        
+        function saveAsText() {
+            const name = document.getElementById('inputName').value.trim();
+            const gender = document.getElementById('gender').value === "male" ? "זכר" : "נקבה";
+            const detailsTitle = document.getElementById("detailsTitle").textContent;
+            const gematriaResults = document.getElementById("gematriaResults").textContent;
+            const complimentsResults = document.getElementById("complimentsResults").textContent;
+            
+            let textContent = `מחשבון גימטריה ומחמאות - תוצאות\n`;
+            textContent += `================================\n\n`;
+            textContent += `שם: ${name}\n`;
+            textContent += `מין: ${gender}\n\n`;
+            textContent += `${detailsTitle}\n${gematriaResults}\n\n`;
+            textContent += `מחמאות מתאימות:\n${complimentsResults}\n\n`;
+            textContent += `נוצר ב-${new Date().toLocaleString('he-IL')}\n`;
+            textContent += `כלי זה נוצר כדי לעזור במציאת מחמאות לפי גימטריה או קונסטרוקציה של אותיות`;
+            
+            const blob = new Blob([textContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `מחמאות_לפי_גימטריה_${name}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast("הקובץ הטקסט הורד!", "success");
+        }
+        
+        function saveAsPDF() {
+            const name = document.getElementById('inputName').value.trim();
+            const gender = document.getElementById('gender').value === "male" ? "זכר" : "נקבה";
+            const detailsTitle = document.getElementById("detailsTitle").textContent.replace(/.*:/, '').trim();
+            const gematriaResults = document.getElementById("gematriaResults");
+            const complimentsResults = document.getElementById("complimentsResults");
+            
+            // יצירת PDF עם jsPDF
+            const doc = new jsPDF();
+            
+            // כותרת
+            doc.setFontSize(22);
+            doc.setTextColor(109, 40, 217);
+            doc.text('מחשבון גימטריה ומחמאות - גרסת פרימיום', 105, 20, { align: 'center' });
+            
+            // קו מפריד
+            doc.setDrawColor(109, 40, 217);
+            doc.setLineWidth(0.5);
+            doc.line(20, 25, 190, 25);
+            
+            // פרטי המשתמש
+            doc.setFontSize(14);
+            doc.setTextColor(30, 41, 59);
+            doc.text(`שם: ${name}`, 20, 35);
+            doc.text(`מין: ${gender}`, 20, 42);
+            doc.text(`תאריך: ${new Date().toLocaleDateString('he-IL')}`, 20, 49);
+            
+            // תוצאות גימטריה
+            doc.setFontSize(16);
+            doc.setTextColor(109, 40, 217);
+            doc.text(`${detailsTitle}`, 20, 65);
+            
+            doc.setFontSize(12);
+            doc.setTextColor(30, 41, 59);
+            
+            // הוספת תוכן הגימטריה
+            const gematriaText = gematriaResults.textContent;
+            const splitGematria = doc.splitTextToSize(gematriaText, 170);
+            doc.text(splitGematria, 20, 75);
+            
+            // מחמאות
+            doc.setFontSize(16);
+            doc.setTextColor(109, 40, 217);
+            doc.text('מחמאות מתאימות:', 20, doc.autoTable.previous.finalY + 15);
+            
+            doc.setFontSize(12);
+            doc.setTextColor(30, 41, 59);
+            
+            // הוספת המחמאות
+            const complimentItems = complimentsResults.querySelectorAll('.compliment-luxury');
+            let yPos = doc.autoTable.previous.finalY + 25;
+            
+            complimentItems.forEach((item, index) => {
+                if (yPos > 280) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+                
+                // מספר וטקסט המחמאה
+                const number = index + 1;
+                const text = item.querySelector('div.text-xl').textContent;
+                
+                doc.setFontSize(12);
+                doc.setTextColor(109, 40, 217);
+                doc.text(`${number}.`, 20, yPos);
+                
+                doc.setFontSize(14);
+                doc.setTextColor(30, 41, 59);
+                const splitText = doc.splitTextToSize(text, 160);
+                doc.text(splitText, 30, yPos);
+                
+                yPos += splitText.length * 7 + 10;
+                
+                // פירוט גימטריה אם קיים
+                const details = item.querySelector('.gematria-details');
+                if (details && details.style.display !== 'none') {
+                    const detailText = details.textContent;
+                    const splitDetails = doc.splitTextToSize(detailText, 160);
+                    
+                    doc.setFontSize(10);
+                    doc.setTextColor(100, 116, 139);
+                    doc.text(splitDetails, 30, yPos);
+                    
+                    yPos += splitDetails.length * 5 + 10;
+                }
+                
+                yPos += 5;
+            });
+            
+            // כותרת תחתונה
+            doc.setFontSize(10);
+            doc.setTextColor(100, 116, 139);
+            doc.text('נוצר עם מחשבון גימטריה ומחמאות פרימיום', 105, 287, { align: 'center' });
+            
+            // שמירת הקובץ
+            doc.save(`מחמאות_לפי_גימטריה_${name}.pdf`);
+            
+            showToast("קובץ ה-PDF הורד!", "success");
+        }
+        
+        // הפיכת הפונקציות לזמינות גלובלית
+        window.calculateConstruction = calculateConstruction;
+        window.calculateGematria = calculateGematria;
+        window.printResults = printResults;
+        window.saveAsText = saveAsText;
+        window.saveAsPDF = saveAsPDF;
+        window.copyShareLink = copyShareLink;
+        window.scrollToTop = scrollToTop;
+        window.showDemoResults = showDemoResults;
+    </script>
+</body>
+</html>
